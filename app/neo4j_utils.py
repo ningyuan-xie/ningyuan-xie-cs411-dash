@@ -4,6 +4,7 @@ from typing import List, Tuple
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
 import os
+import time
 
 # Load environment variables from .env file
 load_dotenv()
@@ -14,19 +15,34 @@ username = os.getenv("NEO4J_USERNAME")
 password = os.getenv("NEO4J_PASSWORD")
 database = os.getenv("NEO4J_DATABASE", "neo4j")
 
-# Initialize the driver
-driver = GraphDatabase.driver(uri, auth=(username, password))
+# Initialize the driver with connection timeout settings
+driver = GraphDatabase.driver(
+    uri,
+    auth=(username, password),
+    max_connection_lifetime=30,  # 30 seconds
+    connection_timeout=10,       # 10 seconds
+    connection_acquisition_timeout=10  # 10 seconds
+)
 
 
 def get_neo4j_connection():
     """Create and return a new Neo4j driver session."""
-    try:
-        session = driver.session(database=database)
-        # print("Neo4j Connection Successful")
-        return session
-    except Exception as e:
-        print(f"Neo4j Connection Failed: {e}")
-        raise
+    max_retries = 3
+    retry_delay_seconds = 2
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            session = driver.session(database=database)
+            print(f"Neo4j connection established (Attempt {attempt}/{max_retries})")
+            return session
+        except Exception as e:
+            print(f"Neo4j connection failed (Attempt {attempt}/{max_retries}): {e}")
+            if attempt < max_retries:
+                print(f"Retrying in {retry_delay_seconds} seconds...")
+                time.sleep(retry_delay_seconds)
+            else:
+                print("Max retries reached. Raising exception.")
+                raise
 
 
 def close_neo4j_connection(session):

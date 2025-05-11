@@ -6,7 +6,6 @@ from mongodb_utils import *
 from neo4j_utils import *
 from layout import *
 from callbacks import *
-from keep_alive import start_keep_alive
 
 
 def create_app() -> Dash:
@@ -29,7 +28,6 @@ def create_app() -> Dash:
 # Run the app
 if __name__ == '__main__':
     app = create_app()
-    start_keep_alive()  # Start the keep-alive scheduler
     app.run(
         debug=True,
         use_reloader=True,

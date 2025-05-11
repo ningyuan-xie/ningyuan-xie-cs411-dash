@@ -1,0 +1,23 @@
+# OS
+*.DS_Store
+*.db
+*.ini
+$RECYCLE.BIN/
+
+# IDE
+.vscode/
+.idea/
+.ipynb_checkpoints/
+.metadata/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+*.env
+
+# Files
+*.docx
+*.mov
+*.txt
+data/

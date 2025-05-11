@@ -371,7 +371,11 @@ def restore_keyword_callback(n_clicks: int, n_intervals: int,
     prevent_initial_call=True
 )
 def widget_six(selected_university: str, n: int) -> px.sunburst:
-    """Fetch university data colaborated with selected university and update UI."""
+    """Fetch university data collaborated with selected university and update UI."""
+    # Return empty figure if no university is selected
+    if not selected_university:
+        return px.sunburst(title="Select a University to Display Data")  
+
     university_data = university_collaborate_with(selected_university)
 
     # Convert result into a DataFrame

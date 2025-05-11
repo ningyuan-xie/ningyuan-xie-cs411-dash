@@ -19,7 +19,12 @@ def create_layout(mysql_tables: List[str],
             html.H1(
                 ["GradXplorer – Navigate academia, discover top schools, and find leading researchers with ease!",
                  html.Br(),
-                 html.Span("By Ningyuan Xie", style={'fontSize': '18px', 'opacity': '0.8'})],
+                 html.Span("By Ningyuan Xie", style={'fontSize': '18px', 'opacity': '0.8', 'display': 'inline-flex', 'alignItems': 'center'}),
+                 html.A(
+                     html.Img(src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/github.svg", style={'height': '20px', 'marginLeft': '10px', 'filter': 'invert(1)'}),
+                     href="https://github.com/ningyuan-xie/ningyuan-xie-cs411-dash",
+                     target="_blank"
+                 )],
                 style={
                     'textAlign': 'center',
                     'color': 'white',

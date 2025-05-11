@@ -5,26 +5,36 @@ import mysql.connector
 from mysql.connector import Error
 import os
 from dotenv import load_dotenv
+import time
 
 # Load environment variables from .env file
 load_dotenv()
 
 def get_db_connection():
     """Create and return a new connection to AWS RDS MySQL."""
-    try:
-        connection = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_NAME"),
-            port=int(os.getenv("DB_PORT", 3306)),
-            connect_timeout=30  # 30-second timeout
-        )
-        # print("MySQL Connection Successful")
-        return connection
-    except Error as e:
-        print(f"MySQL Connection Failed: {e}")
-        raise
+    max_retries = 3
+    retry_delay_seconds = 2
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            connection = mysql.connector.connect(
+                host=os.getenv("DB_HOST"),
+                user=os.getenv("DB_USER"),
+                password=os.getenv("DB_PASSWORD"),
+                database=os.getenv("DB_NAME"),
+                port=int(os.getenv("DB_PORT", 3306)),
+                connect_timeout=30  # 30-second timeout
+            )
+            print(f"MySQL connection established (Attempt {attempt}/{max_retries})")
+            return connection
+        except Error as e:
+            print(f"MySQL connection failed (Attempt {attempt}/{max_retries}): {e}")
+            if attempt < max_retries:
+                print(f"Retrying in {retry_delay_seconds} seconds...")
+                time.sleep(retry_delay_seconds)
+            else:
+                print("Max retries reached. Raising exception.")
+                raise
 
 
 def close_db_connection(cursor, cnx):

@@ -4,6 +4,7 @@ from typing import List, Tuple
 from pymongo import MongoClient
 import os
 import certifi
+import time
 
 # Global MongoDB client (initialized once)
 MONGO_URI = os.getenv("MONGODB_URI")
@@ -14,19 +15,28 @@ db = client[DATABASE_NAME]
 
 def get_mongo_connection():
     """Create and return a new MongoDB client and database connection."""
-    try:
-        # Use TLS/SSL configuration with certifi
-        client = MongoClient(
-            MONGO_URI,
-            serverSelectionTimeoutMS=30000,  # 30-second timeout
-            tls=True,
-            tlsCAFile=certifi.where()
-        )
-        # print("MongoDB Connection Successful")
-        return client, client[DATABASE_NAME]
-    except Exception as e:
-        print(f"MongoDB Connection Failed: {e}")
-        raise
+    max_retries = 3
+    retry_delay_seconds = 2
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            # Use TLS/SSL configuration with certifi
+            client = MongoClient(
+                MONGO_URI,
+                serverSelectionTimeoutMS=30000,  # 30-second timeout
+                tls=True,
+                tlsCAFile=certifi.where()
+            )
+            print(f"MongoDB connection established (Attempt {attempt}/{max_retries})")
+            return client, client[DATABASE_NAME]
+        except Exception as e:
+            print(f"MongoDB connection failed (Attempt {attempt}/{max_retries}): {e}")
+            if attempt < max_retries:
+                print(f"Retrying in {retry_delay_seconds} seconds...")
+                time.sleep(retry_delay_seconds)
+            else:
+                print("Max retries reached. Raising exception.")
+                raise
 
 
 def close_mongo_connection(client):

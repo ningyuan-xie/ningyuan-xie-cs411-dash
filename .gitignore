@@ -19,5 +19,4 @@ ENV/
 # Files
 *.docx
 *.mov
-*.txt
 data/

@@ -22,7 +22,7 @@ def get_neo4j_connection():
     """Create and return a new Neo4j driver session."""
     try:
         session = driver.session(database=database)
-        print("Neo4j Connection Successful")
+        # print("Neo4j Connection Successful")
         return session
     except Exception as e:
         print(f"Neo4j Connection Failed: {e}")

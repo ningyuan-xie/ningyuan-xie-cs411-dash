@@ -22,7 +22,7 @@ def get_mongo_connection():
             tls=True,
             tlsCAFile=certifi.where()
         )
-        print("MongoDB Connection Successful")
+        # print("MongoDB Connection Successful")
         return client, client[DATABASE_NAME]
     except Exception as e:
         print(f"MongoDB Connection Failed: {e}")

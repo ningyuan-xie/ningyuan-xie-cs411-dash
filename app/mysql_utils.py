@@ -20,7 +20,7 @@ def get_db_connection():
             port=int(os.getenv("DB_PORT", 3306)),
             connect_timeout=30  # 30-second timeout
         )
-        print("MySQL Connection Successful")
+        # print("MySQL Connection Successful")
         return connection
     except Error as e:
         print(f"MySQL Connection Failed: {e}")

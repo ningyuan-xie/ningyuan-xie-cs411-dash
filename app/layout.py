@@ -1,16 +1,10 @@
 # layout.py - Layout components for the Dash app.
 
-from typing import List
 from dash import html
-from mysql_utils import *
-from mongodb_utils import *
-from neo4j_utils import *
 from layout_utils import *
 
 
-def create_layout(mysql_tables: List[str],
-                  mongo_collections: List[str],
-                  neo4j_labels: List[str]) -> html.Div:
+def create_layout() -> html.Div:
     """Creates a Dash app layout in a 3-row * 2-column format with a blue background and white views."""
     
     return html.Div(

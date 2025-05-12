@@ -1,6 +1,6 @@
 # layout_widget.py - Reusable layout widgets for Dash app.
 
-from typing import Any
+from typing import Any, List
 from dash import html, dcc
 import plotly.express as px
 from mysql_utils import *

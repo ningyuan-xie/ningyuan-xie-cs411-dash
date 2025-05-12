@@ -96,7 +96,7 @@ def create_layout(mysql_tables: List[str],
                                          interval_id="widget-three-clear-message-interval",
                                          max_value = get_faculty_count(),
                                          input_type="number",
-                                         placeholder="Enter Faculty ID"),
+                                         placeholder="Enter ID"),
                             
                              # 3.4 Restore Button Section
                             RestoreWidget(title="Restore Faculty",
@@ -106,7 +106,7 @@ def create_layout(mysql_tables: List[str],
                             ]),
 
                 # 4. Widget Four: MongoDB Bar Chart
-                GraphWidget("Faculty Members with Highest KRC for Selected Keywords",
+                GraphWidget("Faculty with Highest KRC for Selected Keywords",
                             graph_id="widget-four",
                             graph_type="bar",
                             control_type="triple-dropdown",
@@ -122,7 +122,7 @@ def create_layout(mysql_tables: List[str],
 
             html.Div(className='row', children=[
                 # 5. Widget Five: Neo4j Table
-                TableWidget("Top 10 Keywords in Faculty Interests from Selected Universities",
+                TableWidget("Top 10 Keywords in Faculty Interests",
                              table_id="widget-five",
                              control_type="dropdown",
                              control_id="widget-five-dropdown",
@@ -144,7 +144,7 @@ def create_layout(mysql_tables: List[str],
                                          status_id="widget-five-delete-status",
                                          interval_id="widget-five-clear-message-interval",
                                          input_type="text",
-                                         placeholder="Enter Name"),
+                                         placeholder="Enter ID"),
                             
                              # 5.4 Restore Keyword Section
                             RestoreWidget(title="Restore Keyword",
@@ -154,7 +154,7 @@ def create_layout(mysql_tables: List[str],
                             ]),
 
                 # 6. Widget Six: Neo4j Sunburst Chart
-                GraphWidget("Top 10 Universities Collaborated with Selected Universities",
+                GraphWidget("Top 10 Universities Collaboration",
                             graph_id="widget-six",
                             graph_type="sunburst",
                             control_type="dropdown",

@@ -134,10 +134,10 @@ class GraphWidget(html.Div):
 
         # Graph options: bar, pie, sunburst
         figure = {
-            "bar": px.bar(title="Select from Options to Display Data"),
-            "pie": px.pie(title="Select from Options to Display Data"),
-            "sunburst": px.sunburst(title="Select from Options to Display Data")
-        }.get(graph_type, px.bar(title="Select from Options to Display Data"))
+            "bar": px.bar(title="Select from Options"),
+            "pie": px.pie(title="Select from Options"),
+            "sunburst": px.sunburst(title="Select from Options")
+        }.get(graph_type, px.bar(title="Select from Options"))
 
         # Container holding graph and optional details side-by-side
         graph_and_details = []
@@ -179,8 +179,7 @@ class GraphWidget(html.Div):
         )
 
         # Interval:
-        children.append(dcc.Interval(id=interval_id if interval_id else f"{graph_id}-interval", 
-                                     interval=10 * 1000, n_intervals=0, disabled=True))
+        children.append(dcc.Interval(id=interval_id if interval_id else f"{graph_id}-interval", interval=10 * 1000, n_intervals=0, disabled=True))
 
         # Create the widget from super class
         super().__init__(
@@ -370,8 +369,7 @@ class TableWidget(html.Div):
             )
 
         table_section = html.Div(id=table_id, 
-                                 children=html.P("Select a Keyword to Display Data", 
-                                                 style={'textAlign': 'center', 'color': '#555'}))
+                                 children=html.P("Select a Keyword to Display Data", style={'textAlign': 'center', 'color': '#555'}))
 
         # Layout options: one-col, two-col
         if layout == "one-col":

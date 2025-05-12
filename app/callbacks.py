@@ -383,7 +383,7 @@ def widget_six(selected_university: str, n: int) -> px.sunburst:
                                       columns=["university", "faculty_collaborate_count"])
 
     # Create Sunburst Chart
-    title=f"Top 10 Universities that have collaborated with: <br>{selected_university}"
+    title=f"Top 10 Universities collaborated with: <br>{selected_university}"
     return create_sunburst_chart(df_university_data, "university", "faculty_collaborate_count", title)
 
 

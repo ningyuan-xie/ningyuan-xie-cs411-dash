@@ -69,7 +69,7 @@ def create_data_table(df: pd.DataFrame) -> Any:
         columns=[{"name": col, "id": col} for col in df.columns],
         data=df.to_dict("records"),
         style_table={
-            'width': '60%', 'margin': '20px auto', 'borderRadius': '12px',
+            'width': '80%', 'margin': '20px auto', 'borderRadius': '12px',
             'overflowY': 'auto', 'maxHeight': '450px',
             'boxShadow': '2px 2px 10px rgba(0,0,0,0.15)'
         },
@@ -100,9 +100,9 @@ def create_sunburst_chart(df: pd.DataFrame, path_col: str,
         custom_data=[df[value_col]]
     )
     fig.update_layout(
-        margin=dict(t=50, l=50, r=50, b=0),
-        width=500,
-        height=500
+        margin=dict(t=100, l=0, r=0, b=0),
+        width=450,
+        height=450
     )
     fig.update_traces(textinfo="label+value")
     return fig

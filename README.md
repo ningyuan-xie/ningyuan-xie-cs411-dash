@@ -34,7 +34,7 @@
 
 All the code used is available in this repository.
 
-This Dash app is now deployed on Render: [GradXplorer](https://ningyuan-xie-cs411-dash.onrender.com/).
+This Dash app is now deployed on Render: [GradXplorer](https://ningyuan-xie-cs411-dash.onrender.com/)
 
 ## 2. Purpose
 

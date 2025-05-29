@@ -5,6 +5,7 @@ from neo4j import GraphDatabase
 from dotenv import load_dotenv
 import os
 import time
+import threading
 
 # Load environment variables from .env file
 load_dotenv()
@@ -226,3 +227,23 @@ def university_collaborate_with(university_name: str) -> List[Tuple[str, int]]:
         return []
     finally:
         close_neo4j_connection(session)
+
+
+def start_neo4j_keep_alive():
+    """Start a background thread that pings Neo4j every 3 minutes to prevent Aura shutdown."""
+    def keep_alive_loop():
+        while True:
+            time.sleep(180)  # 3 minutes
+            try:
+                session = get_neo4j_connection()
+                result = session.run("RETURN 1 AS ping")
+                ping_result = result.single()["ping"]
+                if ping_result == 1:
+                    print(f"Neo4j background keep-alive ping successful at {time.ctime()}")
+                close_neo4j_connection(session)
+            except Exception as e:
+                print(f"Neo4j background keep-alive ping failed at {time.ctime()}: {e}")
+    
+    # Start the background thread
+    threading.Thread(target=keep_alive_loop, daemon=True).start()
+    print("Neo4j keep-alive background process started (pings every 3 minutes)")

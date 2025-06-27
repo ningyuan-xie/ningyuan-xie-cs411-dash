@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import time
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv(override=True)
 
 def get_db_connection():
     """Create and return a new connection to AWS RDS MySQL."""

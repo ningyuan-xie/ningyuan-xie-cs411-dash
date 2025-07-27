@@ -1,6 +1,6 @@
 # callbacks.py - Register Dash callback functions.
 
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Union
 import pandas as pd
 from dash import dash, Output, Input, html, State, callback
 import plotly.express as px
@@ -18,7 +18,7 @@ from callbacks_utils import *
      Input("interval-one", "n_intervals")],
     prevent_initial_call=True
 )
-def widget_one(year: int, selected_db: str, n: int) -> List[dict]:
+def widget_one(year: int, selected_db: str, n: int) -> Any:
     """Fetch collection data from MongoDB or MySQL and update UI."""
     # Prevent execution if either input is missing
     if not year or not selected_db:
@@ -41,7 +41,7 @@ def widget_one(year: int, selected_db: str, n: int) -> List[dict]:
     Output("widget-four-dropdown-keyword", "options"),
     Input("widget-two-keyword-options-store", "data")
 )
-def update_all_keyword_dropdowns(favorite_keywords):
+def update_all_keyword_dropdowns(favorite_keywords: List[str]) -> Tuple[List[dict], List[dict], List[dict]]:
     """Update all keyword dropdowns whenever the favorites list changes."""
     options = [{"label": kw, "value": kw} for kw in favorite_keywords]
     return options, options, options
@@ -55,7 +55,7 @@ def update_all_keyword_dropdowns(favorite_keywords):
     State("widget-two-keyword-options-store", "data"),  # current_keywords
     prevent_initial_call=True
 )
-def add_favorite_keyword(n_clicks, selected_keyword, current_keywords):
+def add_favorite_keyword(n_clicks: int, selected_keyword: str, current_keywords: List[str]) -> List[str]:
     """Add a new keyword to the list of keywords."""
     if not selected_keyword or selected_keyword in current_keywords:
         return current_keywords  # Do nothing if blank or already exists
@@ -72,7 +72,7 @@ def add_favorite_keyword(n_clicks, selected_keyword, current_keywords):
     State("widget-two-keyword-options-store", "data"),
     prevent_initial_call=True
 )
-def delete_favorite_keyword(n_clicks, selected_keyword, current_keywords):
+def delete_favorite_keyword(n_clicks: int, selected_keyword: str, current_keywords: List[str]) -> List[str]:
     """Delete a keyword from the list of keywords."""
     if not selected_keyword or selected_keyword not in current_keywords:
         return current_keywords  # Do nothing if blank or doesn't exist
@@ -87,7 +87,7 @@ def delete_favorite_keyword(n_clicks, selected_keyword, current_keywords):
     Input("widget-two-keyword-restore-btn", "n_clicks"),
     prevent_initial_call=True
 )
-def restore_default_keywords(n_clicks):
+def restore_default_keywords(n_clicks: int) -> List[str]:
     """Restore the default list of keywords."""
     return [
         "artificial intelligence",
@@ -103,7 +103,7 @@ def restore_default_keywords(n_clicks):
     Output("widget-two-keyword-pie", "figure"),
     Input("widget-two-keyword-options-store", "data")
 )
-def update_keyword_pie_chart(keywords):
+def update_keyword_pie_chart(keywords: List[str]) -> Any:
     """Update pie chart to reflect current favorite keywords."""
     if not keywords:
         # Return empty pie chart with message
@@ -132,7 +132,7 @@ def update_keyword_pie_chart(keywords):
      Input("interval-three", "n_intervals")],
     prevent_initial_call=True
 )
-def widget_three(selected_keyword: str, n: int) -> Any:
+def widget_three(selected_keyword: str, n: int) -> Tuple[Any, Any]:
     """Fetch faculty members relevant to the selected keyword and update UI."""
     if not selected_keyword:
         return dash.no_update, dash.no_update
@@ -160,7 +160,7 @@ def widget_three(selected_keyword: str, n: int) -> Any:
     prevent_initial_call=True
 )
 def delete_faculty_callback(n_clicks: int, n_intervals: int, 
-                            faculty_id: int, selected_keyword: str) -> Tuple[str, Any, bool, int]:
+                            faculty_id: int, selected_keyword: str) -> Tuple[str, Any, bool, int, Any]:
     """Delete faculty member and update UI."""
     # Case 1: The timer finishes, 2s have passed, n_intervals reached 1
     if n_intervals == 1:
@@ -199,7 +199,7 @@ def delete_faculty_callback(n_clicks: int, n_intervals: int,
     prevent_initial_call=True
 )
 def restore_faculty_callback(n_clicks: int, n_intervals: int,
-                             selected_keyword: str) -> Tuple[str, Any, bool, int]:
+                             selected_keyword: str) -> Tuple[str, Any, bool, int, Any]:
     """Restore faculty member and update UI."""
     # Case 1: The timer finishes, 2s have passed, n_intervals reached 1
     if n_intervals == 1:
@@ -227,7 +227,7 @@ def restore_faculty_callback(n_clicks: int, n_intervals: int,
     Output("widget-four-dropdown-affiliation", "value"),  # added value here for reset
     Input("widget-four-dropdown-db", "value")
 )
-def update_affiliation_options(selected_db):
+def update_affiliation_options(selected_db: str) -> Tuple[List[dict], None]:
     """Update affiliation options based on selected database."""
     if selected_db == "MongoDB":
         options = [{"label": aff, "value": aff} for aff in get_all_affiliations()]
@@ -275,7 +275,7 @@ def widget_four(selected_db: str, selected_keyword: str, selected_affiliation: s
      Input("interval-five", "n_intervals")],
     prevent_initial_call=True
 )
-def widget_five(selected_university: str, n: int) -> Any:
+def widget_five(selected_university: str, n: int) -> Tuple[Any, Any]:
     """Fetch label count for selected Neo4j label and update UI."""
     if not selected_university:
         return dash.no_update, dash.no_update  # No keyword selected, return no update for table, update for count
@@ -303,7 +303,7 @@ def widget_five(selected_university: str, n: int) -> Any:
     prevent_initial_call=True
 )
 def delete_keyword_callback(n_clicks: int, n_intervals: int, 
-                            keyword_id: str, selected_university: str) -> Tuple[str, Any, bool, int]:
+                            keyword_id: str, selected_university: str) -> Tuple[str, Any, bool, int, Any]:
     """Delete keyword and update UI."""
     # Case 1: The timer finishes, 2s have passed, n_intervals reached 1
     if n_intervals == 1:
@@ -342,7 +342,7 @@ def delete_keyword_callback(n_clicks: int, n_intervals: int,
     prevent_initial_call=True
 )
 def restore_keyword_callback(n_clicks: int, n_intervals: int,
-                             selected_university: str) -> Tuple[str, Any, bool, int]:
+                             selected_university: str) -> Tuple[str, Any, bool, int, Any]:
     """Restore keyword and update UI."""
     # Case 1: The timer finishes, 2s have passed, n_intervals reached 1
     if n_intervals == 1:
@@ -370,7 +370,7 @@ def restore_keyword_callback(n_clicks: int, n_intervals: int,
     [Input("widget-six-dropdown", "value"), Input("interval-six", "n_intervals")],
     prevent_initial_call=True
 )
-def widget_six(selected_university: str, n: int) -> px.sunburst:
+def widget_six(selected_university: str, n: int) -> Any:
     """Fetch university data collaborated with selected university and update UI."""
     # Return empty figure if no university is selected
     if not selected_university:

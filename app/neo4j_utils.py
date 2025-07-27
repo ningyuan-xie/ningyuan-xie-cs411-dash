@@ -1,7 +1,7 @@
 # neo4j_utils.py - Utility functions for Neo4j database operations.
 
-from typing import List, Tuple
-from neo4j import GraphDatabase
+from typing import List, Tuple, Optional, Any
+from neo4j import GraphDatabase, Session
 from dotenv import load_dotenv
 import os
 import time
@@ -16,6 +16,10 @@ username = os.getenv("NEO4J_USERNAME")
 password = os.getenv("NEO4J_PASSWORD")
 database = os.getenv("NEO4J_DATABASE", "neo4j")
 
+# Validate required environment variables
+if not uri or not username or not password:
+    raise ValueError("Missing required Neo4j environment variables: NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD")
+
 # Initialize the driver with connection timeout settings
 driver = GraphDatabase.driver(
     uri,
@@ -26,7 +30,7 @@ driver = GraphDatabase.driver(
 )
 
 
-def get_neo4j_connection():
+def get_neo4j_connection() -> Session:
     """Create and return a new Neo4j driver session."""
     max_retries = 3
     retry_delay_seconds = 2
@@ -44,9 +48,12 @@ def get_neo4j_connection():
             else:
                 print("Max retries reached. Raising exception.")
                 raise
+    
+    # This should never be reached, but satisfies the type checker
+    raise RuntimeError("Failed to establish Neo4j connection")
 
 
-def close_neo4j_connection(session):
+def close_neo4j_connection(session: Optional[Session]) -> None:
     """Safely close Neo4j session."""
     if session:
         session.close()
@@ -71,10 +78,13 @@ def get_label_count(label_name: str) -> int:
     session = None
     try:
         session = get_neo4j_connection()
+        # Neo4j doesn't support parameterized labels, so we need to construct the query
+        # This is safe as label_name comes from trusted sources
         query = f"MATCH (n:{label_name}) RETURN COUNT(n) AS count"
-        result = session.run(query)
-        count = result.single()["count"]
-        return count if count is not None else 0  # Ensure valid int count
+        result = session.run(query)  # type: ignore
+        record = result.single()
+        count = record["count"] if record else 0
+        return int(count) if count is not None else 0  # Ensure valid int count
     except Exception as e:
         print(f"Error fetching count for label '{label_name}':", e)
         return 0
@@ -88,7 +98,7 @@ def get_all_institutes() -> List[str]:
     try:
         session = get_neo4j_connection()
         result = session.run("MATCH (i:INSTITUTE) RETURN i.name AS name")
-        return [record["name"] for record in result]
+        return [record["name"] for record in result if record["name"]]
     except Exception as e:
         print("Error fetching institutes:", e)
         return []
@@ -97,7 +107,7 @@ def get_all_institutes() -> List[str]:
 
 
 # For 5.1 Widget Five: Neo4j Table
-def faculty_interested_in_keywords(university_name: str) -> List[Tuple[int, str, int]]:
+def faculty_interested_in_keywords(university_name: str) -> List[Tuple[str, str, int]]:
     """Fetch faculty members interested in keywords from the Neo4j database."""
     session = None
     try:
@@ -109,7 +119,7 @@ def faculty_interested_in_keywords(university_name: str) -> List[Tuple[int, str,
             "ORDER BY faculty_count DESC LIMIT 10"
         )
         result = session.run(query, university_name=university_name)
-        return [(record["id"], record["keyword"], record["faculty_count"]) for record in result]  # [(id, keyword, count), ...]
+        return [(str(record["id"]), str(record["keyword"]), int(record["faculty_count"])) for record in result]  # [(id, keyword, count), ...]
     except Exception as e:
         print(f"Error fetching faculty data for '{university_name}':", e)
         return []
@@ -137,9 +147,10 @@ def get_keyword_count() -> int:
             WHERE k.is_deleted = false
             RETURN COUNT(k) AS count
         """)
-        count = result.single()["count"]
+        record = result.single()
+        count = record["count"] if record else 0
 
-        return count if count is not None else 0  # Ensure valid int count
+        return int(count) if count is not None else 0  # Ensure valid int count
     except Exception as e:
         print("Error fetching keyword count:", e)
         return 0
@@ -221,7 +232,7 @@ def university_collaborate_with(university_name: str) -> List[Tuple[str, int]]:
             "ORDER BY faculty_count DESC LIMIT 10"
         )
         result = session.run(query, university_name=university_name)
-        return [(record["university"], record["faculty_count"]) for record in result]  # [(university, count), ...]
+        return [(str(record["university"]), int(record["faculty_count"])) for record in result]  # [(university, count), ...]
     except Exception as e:
         print(f"Error fetching collaboration data for '{university_name}':", e)
         return []
@@ -229,15 +240,16 @@ def university_collaborate_with(university_name: str) -> List[Tuple[str, int]]:
         close_neo4j_connection(session)
 
 
-def start_neo4j_keep_alive():
+def start_neo4j_keep_alive() -> None:
     """Start a background thread that pings Neo4j every 3 minutes to prevent Aura shutdown."""
-    def keep_alive_loop():
+    def keep_alive_loop() -> None:
         while True:
             time.sleep(180)  # 3 minutes
             try:
                 session = get_neo4j_connection()
                 result = session.run("RETURN 1 AS ping")
-                ping_result = result.single()["ping"]
+                record = result.single()
+                ping_result = record["ping"] if record else None
                 if ping_result == 1:
                     print(f"Neo4j background keep-alive ping successful at {time.ctime()}")
                 close_neo4j_connection(session)

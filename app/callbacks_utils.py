@@ -1,13 +1,13 @@
 # callback_graph.py - Utility functions used during callbacks.
 
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Union, Sequence
 import pandas as pd
 from dash import dash_table, html
 import plotly.express as px
 
 
 # Bar chart
-def create_bar_chart(data: List[Tuple[str, int]], title: str, 
+def create_bar_chart(data: Sequence[Tuple[str, Union[int, float]]], title: str, 
                      label_x: str, label_y: str, 
                      horizontal: bool = False, database: str = "MongoDB") -> Any:
     """Creates a bar chart using Plotly Express."""
@@ -123,7 +123,7 @@ def create_section_header(title: str, subtitle: str) -> html.Div:
 
 
 # HTML table
-def create_info_table(headers: List[str], rows: List[Tuple[Any]]) -> html.Table:
+def create_info_table(headers: List[str], rows: Sequence[Tuple[Any, ...]]) -> html.Table:
     """Create a styled HTML table given headers and row data."""
     # Header row
     header_row = html.Tr([html.Th(col, 

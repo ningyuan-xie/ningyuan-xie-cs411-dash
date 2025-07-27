@@ -1,6 +1,6 @@
 # mysql_utils.py - Utility functions for MySQL database operations.
 
-from typing import List, Tuple
+from typing import List, Tuple, Optional, Union, Any
 import mysql.connector
 from mysql.connector import Error
 import os
@@ -10,7 +10,25 @@ import time
 # Load environment variables from .env file
 load_dotenv(override=True)
 
-def get_db_connection():
+def _safe_int(value: Any, default: int = 0) -> int:
+    """Safely convert a database value to int."""
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return default
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    """Safely convert a database value to float."""
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return default
+
+def get_db_connection() -> Any:
     """Create and return a new connection to AWS RDS MySQL."""
     max_retries = 3
     retry_delay_seconds = 2
@@ -35,9 +53,12 @@ def get_db_connection():
             else:
                 print("Max retries reached. Raising exception.")
                 raise
+    
+    # This should never be reached, but satisfies the type checker
+    raise RuntimeError("Failed to establish database connection")
 
 
-def close_db_connection(cursor, cnx):
+def close_db_connection(cursor: Optional[Any], cnx: Optional[Any]) -> None:
     """Safely close MySQL cursor and connection."""
     if cursor:
         cursor.close()
@@ -45,14 +66,15 @@ def close_db_connection(cursor, cnx):
         cnx.close()
 
 
-def get_all_tables() -> list:
+def get_all_tables() -> List[str]:
     """Fetch all table names from the MySQL database."""
     cnx, cursor = None, None
     try:
         cnx = get_db_connection()
         cursor = cnx.cursor()
         cursor.execute("SHOW TABLES")
-        return [table[0] for table in cursor.fetchall()]  # (table_name,) -> table_name
+        results = cursor.fetchall()
+        return [str(table[0]) for table in results]  # (table_name,) -> table_name
     except Exception as e:
         print("Database connection error:", e)
         return []
@@ -68,7 +90,8 @@ def get_table_count(table_name: str) -> int:
         cursor = cnx.cursor()
         query = f"SELECT COUNT(*) FROM {table_name}"
         cursor.execute(query)
-        return cursor.fetchone()[0]  # (count,) -> count
+        result = cursor.fetchone()
+        return _safe_int(result[0]) if result else 0  # (count,) -> count
     except Exception as e:
         print(f"Error fetching count for table '{table_name}':", e)
         return 0
@@ -99,7 +122,8 @@ def find_universities_with_faculties_working_keywords(keyword: str) -> List[Tupl
         query = "SELECT * FROM TOP_UNIVERSITIES ORDER BY faculty_count DESC LIMIT 5"
         cursor.execute(query)
         
-        return cursor.fetchall()  # [(university, faculty_count), ...]
+        results = cursor.fetchall()
+        return [(str(row[0]), _safe_int(row[1])) for row in results]  # [(university, faculty_count), ...]
     except Exception as e:
         print("Error fetching universities:", e)
         return []
@@ -129,7 +153,8 @@ def find_most_popular_keywords_sql(year: int) -> List[Tuple[str, int]]:
                 WHERE table_schema = DATABASE()
                 AND index_name = %s
             """, (index_name,))
-            exists = cursor.fetchone()[0]
+            result = cursor.fetchone()
+            exists = _safe_int(result[0]) if result else 0
             if not exists:
                 try:
                     cursor.execute(index_sql)
@@ -143,7 +168,8 @@ def find_most_popular_keywords_sql(year: int) -> List[Tuple[str, int]]:
                    AND publication.year >= %s
                    GROUP BY keyword_id ORDER BY COUNT(keyword_id) DESC LIMIT 10;"""
         cursor.execute(query, (year,))
-        return cursor.fetchall()  # [(keyword, count), ...]
+        results = cursor.fetchall()
+        return [(str(row[0]), _safe_int(row[1])) for row in results]  # [(keyword, count), ...]
     except Exception as e:
         print("Error fetching popular keywords:", e)
         return []
@@ -159,7 +185,8 @@ def get_all_keywords() -> List[str]:
         cnx = get_db_connection()
         cursor = cnx.cursor()
         cursor.execute("SELECT DISTINCT(name) FROM keyword")
-        return [keyword[0] for keyword in cursor.fetchall()]  # (keyword,) -> keyword
+        results = cursor.fetchall()
+        return [str(keyword[0]) for keyword in results]  # (keyword,) -> keyword
     except Exception as e:
         print("Error fetching keywords:", e)
         return []
@@ -168,7 +195,7 @@ def get_all_keywords() -> List[str]:
 
 
 # For 3.1 Widget Three: MySQL Table
-def find_faculty_relevant_to_keyword(keyword: str) -> List[Tuple[str, int]]:
+def find_faculty_relevant_to_keyword(keyword: str) -> List[Tuple[str, str, str]]:
     """Find faculty members relevant to the selected keyword."""
     cnx, cursor = None, None
     try:
@@ -196,12 +223,12 @@ def find_faculty_relevant_to_keyword(keyword: str) -> List[Tuple[str, int]]:
         cursor.execute("EXECUTE stmt USING @keyword;")
 
         # Fetch results
-        result = cursor.fetchall()
+        results = cursor.fetchall()
 
         # Deallocate the prepared statement
         cursor.execute("DEALLOCATE PREPARE stmt;")
 
-        return result  # [(faculty_id, faculty_name, university_name), ...]
+        return [(str(row[0]), str(row[1]), str(row[2])) for row in results]  # [(faculty_id, faculty_name, university_name), ...]
     except Exception as e:
         print("Error fetching faculty members:", e)
         return []
@@ -224,7 +251,8 @@ def get_faculty_count() -> int:
             AND TABLE_NAME = 'faculty' 
             AND COLUMN_NAME = 'is_deleted'
         """)
-        column_exists = cursor.fetchone()[0] > 0
+        result = cursor.fetchone()
+        column_exists = (_safe_int(result[0]) > 0) if result else False
 
         if not column_exists:
             try:
@@ -235,7 +263,8 @@ def get_faculty_count() -> int:
                 # Continue even if column creation fails
 
         cursor.execute("SELECT COUNT(*) FROM faculty WHERE is_deleted = FALSE")
-        return cursor.fetchone()[0]
+        result = cursor.fetchone()
+        return _safe_int(result[0]) if result else 0
     except Exception as e:
         print(f"Error fetching faculty count: {e}")
         return 0
@@ -311,7 +340,8 @@ def get_all_universities() -> List[str]:
         cnx = get_db_connection()
         cursor = cnx.cursor()
         cursor.execute("SELECT DISTINCT(name) FROM university")
-        return [university[0] for university in cursor.fetchall()]  # (university,) -> university
+        results = cursor.fetchall()
+        return [str(university[0]) for university in results]  # (university,) -> university
     except Exception as e:
         print("Error fetching universities:", e)
         return []
@@ -320,7 +350,7 @@ def get_all_universities() -> List[str]:
 
 
 # For 4.2 Widget Four: MongoDB Bar Chart (with MySQL option)
-def find_top_faculties_with_highest_KRC_keyword_sql(keyword, university) -> List[Tuple[str, int]]:
+def find_top_faculties_with_highest_KRC_keyword_sql(keyword: str, university: str) -> List[Tuple[str, float]]:
     """Find top faculties with highest KRC for the selected keyword and affiliation."""
     cnx, cursor = None, None
     try:
@@ -341,7 +371,8 @@ def find_top_faculties_with_highest_KRC_keyword_sql(keyword, university) -> List
                    GROUP BY faculty.id ORDER BY KRC DESC LIMIT 10;
                    """
         cursor.execute(query, (keyword, university))
-        return cursor.fetchall()  # [(faculty, KRC), ...]
+        results = cursor.fetchall()
+        return [(str(row[0]), _safe_float(row[1])) for row in results]  # [(faculty, KRC), ...]
     except Exception as e:
         print(f"Error fetching faculties for keyword '{keyword}' and affiliation '{university}':", e)
         return []
@@ -350,7 +381,7 @@ def find_top_faculties_with_highest_KRC_keyword_sql(keyword, university) -> List
 
 
 # For 6.2 Widget Six: Neo4j Sunburst Chart - University Information
-def get_university_information(university_name: str) -> List[Tuple[str, str]]:
+def get_university_information(university_name: str) -> List[Tuple[str, int, str]]:
     """Fetch university information based on the university name."""
     cnx, cursor = None, None
     try:
@@ -363,7 +394,8 @@ def get_university_information(university_name: str) -> List[Tuple[str, str]]:
                    AND university.id = faculty.university_id
                    GROUP BY university.name, university.photo_url;"""
         cursor.execute(query, (university_name,))
-        return cursor.fetchall()  # [(id, name), ...]
+        results = cursor.fetchall()
+        return [(str(row[0]), _safe_int(row[1]), str(row[2]) if row[2] else "") for row in results]  # [(name, faculty_count, photo_url), ...]
     except Exception as e:
         print("Error fetching university information:", e)
         return []

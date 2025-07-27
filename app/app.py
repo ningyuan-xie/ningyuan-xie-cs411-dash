@@ -30,5 +30,5 @@ if __name__ == '__main__':
         use_reloader=True,
         dev_tools_hot_reload=False,
         host='0.0.0.0',
-        port=8050
+        port="8050"
     )

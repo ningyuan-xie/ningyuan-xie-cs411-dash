@@ -1,6 +1,6 @@
 # layout_widget.py - Reusable layout widgets for Dash app.
 
-from typing import Any, List
+from typing import Any, List, Optional, Dict
 from dash import html, dcc
 import plotly.express as px
 from mysql_utils import *
@@ -9,16 +9,20 @@ from neo4j_utils import *
 
 
 class GraphWidget(html.Div):
-    def __init__(self, title, graph_id, graph_type="bar", 
-                 control_type=None, control_id=None, control_options=None, 
-                 second_control_id=None, second_control_options=None, 
-                 third_control_id=None, third_control_options=None, 
-                 interval_id=None, details_id=None, **kwargs):
+    def __init__(self, title: str, graph_id: str, graph_type: str = "bar", 
+                 control_type: Optional[str] = None, control_id: Optional[str] = None, 
+                 control_options: Optional[Dict[str, Any]] = None, 
+                 second_control_id: Optional[str] = None, 
+                 second_control_options: Optional[Dict[str, Any]] = None, 
+                 third_control_id: Optional[str] = None, 
+                 third_control_options: Optional[Dict[str, Any]] = None, 
+                 interval_id: Optional[str] = None, details_id: Optional[str] = None, 
+                 **kwargs):
         
-        children = [html.H3(title, style={'textAlign': 'center'})]
+        children: List[Any] = [html.H3(title, style={'textAlign': 'center'})]
 
         # Control options: slider, slider+dropdown, radio, dropdown, double-dropdown, triple-dropdown
-        if control_type == "slider":
+        if control_type == "slider" and control_options:
             children.append(
                 dcc.Slider(
                     id=control_id,
@@ -30,7 +34,7 @@ class GraphWidget(html.Div):
                     tooltip={"placement": "bottom", "always_visible": True}
                 )
             )
-        elif control_type == "slider+dropdown":
+        elif control_type == "slider+dropdown" and control_options and second_control_options:
             children.append(
                 html.Div([
                     html.Div(
@@ -58,7 +62,7 @@ class GraphWidget(html.Div):
                 ], style={'display': 'flex', 'gap': '4%'})
 
             )
-        elif control_type == "radio":
+        elif control_type == "radio" and control_options:
             children.append(
                 dcc.RadioItems(
                     id=control_id,
@@ -68,7 +72,7 @@ class GraphWidget(html.Div):
                     style={'margin': '10px 0'}
                 )
             )
-        elif control_type == "dropdown":
+        elif control_type == "dropdown" and control_options:
             children.append(
                 dcc.Dropdown(
                     id=control_id,
@@ -79,7 +83,7 @@ class GraphWidget(html.Div):
                     style={'width': '100%'}
                 )
             )
-        elif control_type == "double-dropdown":
+        elif control_type == "double-dropdown" and control_options and second_control_options:
             children.append(
                 html.Div([
                     dcc.Dropdown(
@@ -101,7 +105,7 @@ class GraphWidget(html.Div):
                 ], style={'display': 'flex', 'gap': '4%'}  # Space between dropdowns
                 )
             )
-        elif control_type == "triple-dropdown":
+        elif control_type == "triple-dropdown" and control_options and second_control_options and third_control_options:
             children.append(
                 html.Div([
                     dcc.Dropdown(
@@ -210,7 +214,7 @@ class ControlWidget(html.Div):
                  default_keywords: List[str],
                  **kwargs):
 
-        children = [html.H3(title, style={"textAlign": "center", "marginBottom": "20px"})]
+        children: List[Any] = [html.H3(title, style={"textAlign": "center", "marginBottom": "20px"})]
 
         # Row 1: Add keyword + View favorites dropdowns
         children.append(
@@ -303,16 +307,18 @@ class ControlWidget(html.Div):
 
 
 class TableWidget(html.Div):
-    def __init__(self, title, table_id, 
-                 control_type=None, control_id=None, control_options=None, 
-                 second_control_id=None, second_control_options=None, 
-                 layout="one-col", right_panel_widgets=None, 
-                 interval_id=None, **kwargs):
+    def __init__(self, title: str, table_id: str, 
+                 control_type: Optional[str] = None, control_id: Optional[str] = None, 
+                 control_options: Optional[Dict[str, Any]] = None, 
+                 second_control_id: Optional[str] = None, 
+                 second_control_options: Optional[Dict[str, Any]] = None, 
+                 layout: str = "one-col", right_panel_widgets: Optional[Any] = None, 
+                 interval_id: Optional[str] = None, **kwargs):
 
-        children = [html.H3(title, style={'textAlign': 'center'})]
+        children: List[Any] = [html.H3(title, style={'textAlign': 'center'})]
 
         # Control options: slider, radio, dropdown, double-dropdown
-        if control_type == "slider":
+        if control_type == "slider" and control_options:
             children.append(
                 dcc.Slider(
                     id=control_id,
@@ -324,7 +330,7 @@ class TableWidget(html.Div):
                     tooltip={"placement": "bottom", "always_visible": True}
                 )
             )
-        elif control_type == "radio":
+        elif control_type == "radio" and control_options:
             children.append(
                 dcc.RadioItems(
                     id=control_id,
@@ -334,7 +340,7 @@ class TableWidget(html.Div):
                     style={'margin': '10px 0'}
                 )
             )
-        elif control_type == "dropdown":
+        elif control_type == "dropdown" and control_options:
             children.append(
                 dcc.Dropdown(
                     id=control_id,
@@ -345,7 +351,7 @@ class TableWidget(html.Div):
                     style={'width': '100%'}
                 )
             )
-        elif control_type == "double-dropdown":
+        elif control_type == "double-dropdown" and control_options and second_control_options:
             children.append(
                 html.Div([
                     dcc.Dropdown(
@@ -404,7 +410,7 @@ class TableWidget(html.Div):
 
 
 class CountDisplayWidget(html.Div):
-    def __init__(self, title, count_id, interval_id=None, **kwargs):
+    def __init__(self, title: str, count_id: str, interval_id: Optional[str] = None, **kwargs):
         super().__init__(
             children=[
                 html.H4(title, style={'textAlign': 'center', 'marginBottom': '10px', 'fontSize': '20px'}),
@@ -425,9 +431,9 @@ class CountDisplayWidget(html.Div):
 
 
 class DeleteWidget(html.Div):
-    def __init__(self, title, input_id, button_id, status_id, input_type,
-                 interval_id=None, min_value=1, max_value=None, 
-                 placeholder="Enter ID", **kwargs):
+    def __init__(self, title: str, input_id: str, button_id: str, status_id: str, input_type: str,
+                 interval_id: Optional[str] = None, min_value: int = 1, max_value: Optional[int] = None, 
+                 placeholder: str = "Enter ID", **kwargs):
         super().__init__(
             children=[
                 html.H4(title, style={'textAlign': 'center', 'marginBottom': '10px', 'fontSize': '20px'}),
@@ -468,7 +474,7 @@ class DeleteWidget(html.Div):
 
 
 class RestoreWidget(html.Div):
-    def __init__(self, title, button_id, status_id, interval_id=None, **kwargs):
+    def __init__(self, title: str, button_id: str, status_id: str, interval_id: Optional[str] = None, **kwargs):
         super().__init__(
             children=[
                 html.Div([
@@ -500,7 +506,7 @@ class RestoreWidget(html.Div):
 
 
 class RefreshWidget(html.Div):
-    def __init__(self, button_id, **kwargs):
+    def __init__(self, button_id: str, **kwargs):
         super().__init__(
             children=[
                 html.Button("Refresh", id=button_id, n_clicks=0, 

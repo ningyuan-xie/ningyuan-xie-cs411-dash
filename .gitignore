@@ -19,4 +19,9 @@ ENV/
 # Files
 *.docx
 *.mov
-data/
+*.txt
+*.json
+*.bson
+*.csv
+*.dump
+*.sql

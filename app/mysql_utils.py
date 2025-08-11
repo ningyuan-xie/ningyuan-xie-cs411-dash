@@ -6,6 +6,7 @@ from mysql.connector import Error
 import os
 from dotenv import load_dotenv
 import time
+import threading
 
 # Load environment variables from .env file
 load_dotenv(override=True)
@@ -401,3 +402,25 @@ def get_university_information(university_name: str) -> List[Tuple[str, int, str
         return []
     finally:
         close_db_connection(cursor, cnx)
+
+
+def start_mysql_keep_alive() -> None:
+    """Start a background thread that pings MySQL every 3 minutes to prevent connection timeout."""
+    def keep_alive_loop() -> None:
+        while True:
+            time.sleep(180)  # 3 minutes
+            try:
+                cnx = get_db_connection()
+                cursor = cnx.cursor()
+                cursor.execute("SELECT 1 AS ping")
+                result = cursor.fetchone()
+                ping_result = result[0] if result else None
+                if ping_result == 1:
+                    print(f"MySQL background keep-alive ping successful at {time.ctime()}")
+                close_db_connection(cursor, cnx)
+            except Exception as e:
+                print(f"MySQL background keep-alive ping failed at {time.ctime()}: {e}")
+    
+    # Start the background thread
+    threading.Thread(target=keep_alive_loop, daemon=True).start()
+    print("MySQL keep-alive background process started (pings every 3 minutes)")

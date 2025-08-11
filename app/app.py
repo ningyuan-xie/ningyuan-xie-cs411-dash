@@ -4,6 +4,7 @@ from dash import Dash
 from layout import *
 from callbacks import *
 from neo4j_utils import start_neo4j_keep_alive
+from mysql_utils import start_mysql_keep_alive
 
 
 def create_app() -> Dash:
@@ -22,6 +23,9 @@ def create_app() -> Dash:
 if __name__ == '__main__':
     app = create_app()
     
+    # Start MySQL keep-alive background process
+    start_mysql_keep_alive()
+
     # Start Neo4j keep-alive background process
     start_neo4j_keep_alive()
     

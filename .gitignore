@@ -5,7 +5,6 @@
 $RECYCLE.BIN/
 
 # IDE
-.vscode/
 .idea/
 .ipynb_checkpoints/
 .metadata/

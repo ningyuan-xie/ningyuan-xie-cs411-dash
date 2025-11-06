@@ -76,5 +76,3 @@ def trigger_memory_cleanup_now() -> None:
             )
     except Exception as e:
         print(f"Manual memory cleanup error at {time.ctime()}: {e}")
-
-

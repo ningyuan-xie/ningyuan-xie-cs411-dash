@@ -5,6 +5,7 @@ from layout import *
 from callbacks import *
 from neo4j_utils import start_neo4j_keep_alive
 from mysql_utils import start_mysql_keep_alive
+from memory_utils import start_memory_cleanup
 
 
 def create_app() -> Dash:
@@ -23,11 +24,14 @@ def create_app() -> Dash:
 if __name__ == '__main__':
     app = create_app()
     
-    # Start MySQL keep-alive background process
-    start_mysql_keep_alive()
-
     # Start Neo4j keep-alive background process
     start_neo4j_keep_alive()
+    
+    # Start MySQL keep-alive background process
+    start_mysql_keep_alive()
+    
+    # Start background memory cleanup (runs gc.collect() periodically)
+    start_memory_cleanup(interval_seconds=300)
     
     app.run(
         debug=True,

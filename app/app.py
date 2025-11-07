@@ -1,6 +1,5 @@
 # app.py - Main entry point for the Dash app.
 
-import os
 from dash import Dash
 from layout import *
 from callbacks import *
@@ -32,16 +31,12 @@ if __name__ == '__main__':
     start_mysql_keep_alive()
     
     # Start background memory cleanup (runs gc.collect() periodically)
-    start_memory_cleanup(interval_seconds=180)
-    
-    # Check if running in production (Render sets RENDER environment variable)
-    is_production = os.getenv("RENDER") == "true" or os.getenv("ENV") == "production"
-    debug_mode = os.getenv("DEBUG", "false").lower() == "true" and not is_production
+    start_memory_cleanup(interval_seconds=30)
     
     app.run(
-        debug=debug_mode,
-        use_reloader=debug_mode,  # Only enable reloader in debug mode
+        debug=True,
+        use_reloader=True,
         dev_tools_hot_reload=False,
         host='0.0.0.0',
-        port=int(os.getenv("PORT", "8050"))
+        port="8050"
     )

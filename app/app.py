@@ -33,10 +33,19 @@ if __name__ == '__main__':
     # Start background memory cleanup (runs gc.collect() periodically)
     start_memory_cleanup(interval_seconds=30)
     
+    # Local development
+    # app.run(
+    #     debug=True,
+    #     use_reloader=True,
+    #     dev_tools_hot_reload=False,
+    #     host='0.0.0.0',
+    #     port="8050"
+    # )
+
+    # Production
     app.run(
-        debug=True,
-        use_reloader=True,
-        dev_tools_hot_reload=False,
+        debug=False,
+        use_reloader=False,
         host='0.0.0.0',
-        port="8050"
+        port=8050
     )

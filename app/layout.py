@@ -1,7 +1,7 @@
 # layout.py - Layout components for the Dash app.
 
 from dash import html
-from app.layout_utils import *
+from layout_utils import *
 
 
 def create_layout() -> html.Div:

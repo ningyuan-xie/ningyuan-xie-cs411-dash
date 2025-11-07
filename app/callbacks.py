@@ -4,10 +4,10 @@ from typing import Any, List, Tuple, Union
 import pandas as pd
 from dash import dash, Output, Input, html, State, callback
 import plotly.express as px
-from app.mysql_utils import *
-from app.mongodb_utils import *
-from app.neo4j_utils import *
-from app.callbacks_utils import *
+from mysql_utils import *
+from mongodb_utils import *
+from neo4j_utils import *
+from callbacks_utils import *
 
 
 # 1. Widget One: MongoDB Bar Chart (with MySQL option)

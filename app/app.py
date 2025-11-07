@@ -1,12 +1,11 @@
 # app.py - Main entry point for the Dash app.
 
-import os
 from dash import Dash
-from app.layout import *
-from app.callbacks import *
-from app.neo4j_utils import start_neo4j_keep_alive
-from app.mysql_utils import start_mysql_keep_alive
-from app.memory_utils import start_memory_cleanup
+from layout import *
+from callbacks import *
+from neo4j_utils import start_neo4j_keep_alive
+from mysql_utils import start_mysql_keep_alive
+from memory_utils import start_memory_cleanup
 
 
 def create_app() -> Dash:
@@ -17,17 +16,16 @@ def create_app() -> Dash:
     return app
 
 
-# Global app instance for Gunicorn
-app = create_app()
-
-# Start background processes
-start_neo4j_keep_alive()
-start_mysql_keep_alive()
-start_memory_cleanup(interval_seconds=30)
-
-
 if __name__ == "__main__":
-    # True locally, False on Render
+    app = create_app()
+
+    # Start background processes
+    start_neo4j_keep_alive()
+    start_mysql_keep_alive()
+    start_memory_cleanup(interval_seconds=30)
+
+    # Detect whether running locally or on Render
+    import os
     is_local = os.environ.get("RENDER") is None
 
     app.run(

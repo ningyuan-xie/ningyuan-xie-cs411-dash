@@ -17,17 +17,18 @@ def create_app() -> Dash:
     return app
 
 
+# Global app instance for Gunicorn
+app = create_app()
+
+# Start background processes
+start_neo4j_keep_alive()
+start_mysql_keep_alive()
+start_memory_cleanup(interval_seconds=30)
+
+
 if __name__ == "__main__":
-    app = create_app()
-
-    # Start background processes
-    start_neo4j_keep_alive()
-    start_mysql_keep_alive()
-    start_memory_cleanup(interval_seconds=30)
-
     # True locally, False on Render
     is_local = os.environ.get("RENDER") is None
-    print(f"Running in local mode: {is_local}")
 
     app.run(
         debug=is_local,

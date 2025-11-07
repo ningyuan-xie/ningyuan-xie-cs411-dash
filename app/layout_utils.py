@@ -3,9 +3,9 @@
 from typing import Any, List, Optional, Dict
 from dash import html, dcc
 import plotly.express as px
-from mysql_utils import *
-from mongodb_utils import *
-from neo4j_utils import *
+from app.mysql_utils import *
+from app.mongodb_utils import *
+from app.neo4j_utils import *
 
 
 class GraphWidget(html.Div):

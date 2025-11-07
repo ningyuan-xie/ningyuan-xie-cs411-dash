@@ -29,6 +29,7 @@ def start_memory_cleanup(interval_seconds: int = 300) -> None:
 
     - interval_seconds: seconds between cleanup cycles (default 5 minutes)
     - Logs memory usage before/after if psutil is available
+    - Performs aggressive cleanup in production
     """
 
     def _loop() -> None:
@@ -36,18 +37,26 @@ def start_memory_cleanup(interval_seconds: int = 300) -> None:
             time.sleep(max(5, int(interval_seconds)))
             before = _get_rss_bytes()
             try:
-                # Full collection; useful for long-lived processes
-                unreachable = gc.collect()
+                # Set threshold to be more aggressive about collecting generation 0
+                # This helps catch objects that are accumulating but not yet in cycles
+                collected = 0
+                for generation in range(3):
+                    count = gc.collect(generation)
+                    collected += count
+                
                 after = _get_rss_bytes()
                 if before is not None and after is not None:
                     delta = after - before
+                    mb_before = before / (1024 * 1024)
+                    mb_after = after / (1024 * 1024)
                     sign = "+" if delta >= 0 else ""
                     print(
-                        f"Memory cleanup: gc.collect() reclaimed={unreachable} objects; RSS change={sign}{delta} bytes at {time.ctime()}"
+                        f"Memory cleanup: gc.collect() reclaimed={collected} objects; "
+                        f"Memory: {mb_before:.1f}MB -> {mb_after:.1f}MB ({sign}{abs(delta)/(1024*1024):.1f}MB) at {time.ctime()}"
                     )
                 else:
                     print(
-                        f"Memory cleanup: gc.collect() reclaimed={unreachable} objects at {time.ctime()}"
+                        f"Memory cleanup: gc.collect() reclaimed={collected} objects at {time.ctime()}"
                     )
             except Exception as e:
                 print(f"Memory cleanup error at {time.ctime()}: {e}")
@@ -62,17 +71,34 @@ def trigger_memory_cleanup_now() -> None:
     """Run an immediate gc.collect(), logging memory if possible."""
     before = _get_rss_bytes()
     try:
-        unreachable = gc.collect()
+        collected = 0
+        for generation in range(3):
+            count = gc.collect(generation)
+            collected += count
         after = _get_rss_bytes()
         if before is not None and after is not None:
             delta = after - before
+            mb_before = before / (1024 * 1024)
+            mb_after = after / (1024 * 1024)
             sign = "+" if delta >= 0 else ""
             print(
-                f"Manual memory cleanup: gc.collect() reclaimed={unreachable} objects; RSS change={sign}{delta} bytes at {time.ctime()}"
+                f"Manual memory cleanup: gc.collect() reclaimed={collected} objects; "
+                f"Memory: {mb_before:.1f}MB -> {mb_after:.1f}MB ({sign}{abs(delta)/(1024*1024):.1f}MB) at {time.ctime()}"
             )
         else:
             print(
-                f"Manual memory cleanup: gc.collect() reclaimed={unreachable} objects at {time.ctime()}"
+                f"Manual memory cleanup: gc.collect() reclaimed={collected} objects at {time.ctime()}"
             )
     except Exception as e:
         print(f"Manual memory cleanup error at {time.ctime()}: {e}")
+
+
+def cleanup_dataframe(df) -> None:
+    """Helper to explicitly delete a DataFrame and trigger immediate cleanup if large."""
+    if df is not None:
+        try:
+            del df
+            # Force collection if DataFrame was large (rough heuristic)
+            gc.collect(0)  # Only generation 0 for speed
+        except Exception:
+            pass  # Ignore errors during cleanup

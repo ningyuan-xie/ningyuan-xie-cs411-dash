@@ -44,7 +44,7 @@ dependencies:
       - packaging==24.2
       - pandas==2.2.3
       - plotly==6.0.0
-      - pymongo==4.11
+      - pymongo==4.10.1
       - python-dateutil==2.9.0.post0
       - python-dotenv==1.1.0
       - pytz==2025.1

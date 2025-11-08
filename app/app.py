@@ -24,14 +24,10 @@ if __name__ == "__main__":
     start_mysql_keep_alive()
     start_memory_cleanup(interval_seconds=30)
 
-    # Detect whether running locally or on Render
-    import os
-    is_local = os.environ.get("RENDER") is None
-
     app.run(
-        debug=is_local,
-        use_reloader=is_local,
-        dev_tools_hot_reload=False,
+        debug=True,
+        use_reloader=True,
+        dev_tools_hot_reload=True,
         host="0.0.0.0",
-        port="8050"
+        port=8050
     )

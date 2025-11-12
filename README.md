@@ -1,3 +1,21 @@
+# Academic Data Analytics Platform
+
+![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)
+![Dash](https://img.shields.io/badge/Dash-3.0.4-119DFF?logo=plotly&logoColor=white)
+![Plotly](https://img.shields.io/badge/Plotly-6.0.1-3F4F75?logo=plotly&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0.3-000000?logo=flask&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-9.2.0-4479A1?logo=mysql&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-4.10.1-47A248?logo=mongodb&logoColor=white)
+![Neo4j](https://img.shields.io/badge/Neo4j-5.28.1-008CC1?logo=neo4j&logoColor=white)
+![Pandas](https://img.shields.io/badge/Pandas-2.2.3-150458?logo=pandas&logoColor=white)
+
+**CS411 Database Systems - Final Project**  
+**Author:** Ningyuan Xie  
+**Instructor:** Prof. Kevin Chen-Chuan Chang  
+**Institution:** University of Illinois Urbana-Champaign
+
+---
+
 ## Table of Contents
 - [1. Title: GradXplorer](#1-title-gradxplorer)
 - [2. Purpose](#2-purpose)
@@ -29,12 +47,16 @@
   - [8.3 Transactions](#83-transactions)
 - [9. Contributions](#9-contributions)
 
+---
+
 ## 1. Title: GradXplorer
 **Navigate academia, discover top schools, and find leading researchers with ease!**
 
 All the code used is available in this repository.
 
 This Dash app is now deployed on PythonAnywhere: [GradXplorer](https://cs411-ningyuanxie.pythonanywhere.com/)
+
+---
 
 ## 2. Purpose
 
@@ -59,9 +81,13 @@ Students preparing for graduate school applications often struggle to find relia
 Stay ahead in the academic world with **GradXplorer**!
 
 
+---
+
 ## 3. Demo
 **Link to video demo:** [Demo Video](https://mediaspace.illinois.edu/media/t/1_gezkl50u)
 
+
+---
 
 ## 4. Installation
 Only the given datasets (MySQL from MP4, MongoDB from MP3, and Neo4j from MP3) are used for this application. For environment setup, there are two options available below. After installation, simply run the third command below to start the application.
@@ -82,6 +108,8 @@ conda activate cs411
 python app/app.py
 ```
 
+
+---
 
 ## 5. Usage
 **GradXplorer** provides an intuitive web-based interface for exploring academic data. After running the main entry file `app.py`, the application will launch at [http://0.0.0.0:8050/](http://0.0.0.0:8050/).
@@ -131,6 +159,8 @@ Users can also click on the generated sunburst chart to view basic information a
 Database **Neo4j** and **MySQL** are used to store and retrieve this data.
 
 
+---
+
 ## 6. Design
 
 **GradXplorer** follows a **dashboard-driven** approach using Dash Plotly to present interactive data visualizations. Overall, the application is structured using a **three-tier architecture**:
@@ -144,6 +174,8 @@ Handles business logic, processes user requests, and acts as an intermediary bet
 ### 6.3 Database Layer (MySQL, MongoDB, Neo4j)
 Stores relational, document, and graph Academic World data for efficient retrieval. Specifically: widget 1 and 4 use **MongoDB**; widget 1, 2, 3, 4, and 6 use **MySQL**; widget 5 and 6 use **Neo4j**.
 
+
+---
 
 ## 7. Implementation
 
@@ -166,6 +198,8 @@ Stores relational, document, and graph Academic World data for efficient retriev
 - **Database-related Frameworks** – Libraries used to interact with backend databases: `mysql.connector`, `pymongo`, and `neo4j`.
 
 
+---
+
 ## 8. Database Techniques
 
 ### 8.1 Indexing
@@ -187,6 +221,8 @@ Stores relational, document, and graph Academic World data for efficient retriev
   - `delete_keyword(keyword_id)`
   - `restore_keyword()`
 
+
+---
 
 ## 9. Contributions
 **This app is solely developed by Ningyuan Xie.**

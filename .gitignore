@@ -8,6 +8,7 @@ $RECYCLE.BIN/
 .idea/
 .ipynb_checkpoints/
 .metadata/
+.vscode/
 
 # Virtual Environment
 venv/

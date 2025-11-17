@@ -16,7 +16,7 @@ def create_layout() -> html.Div:
                  html.Span("By Ningyuan Xie", style={'fontSize': '18px', 'opacity': '0.8', 'display': 'inline-flex', 'alignItems': 'center'}),
                  html.A(
                      html.Img(src="https://cdn.jsdelivr.net/npm/simple-icons@v5/icons/github.svg", style={'height': '20px', 'marginLeft': '10px', 'filter': 'invert(1)'}),
-                     href="https://github.com/ningyuan-xie/ningyuan-xie-cs411-dash",
+                     href="https://github.com/ningyuan-xie/academic-dash-app",
                      target="_blank"
                  )],
                 style={

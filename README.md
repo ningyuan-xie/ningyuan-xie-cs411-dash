@@ -225,4 +225,4 @@ Stores relational, document, and graph Academic World data for efficient retriev
 ---
 
 ## 9. Contributions
-**This app is solely developed by Ningyuan Xie.**
+**This app was solely developed by Ningyuan Xie.**

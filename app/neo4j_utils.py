@@ -241,21 +241,29 @@ def university_collaborate_with(university_name: str) -> List[Tuple[str, int]]:
 
 
 def start_neo4j_keep_alive() -> None:
-    """Start a background thread that pings Neo4j every 3 minutes to prevent Aura shutdown."""
+    """Start a background thread that pings Neo4j every 1 minute to prevent Aura shutdown."""
     def keep_alive_loop() -> None:
+        session = None
         while True:
-            time.sleep(180)  # 3 minutes
             try:
+                # Create a new session for each ping to ensure fresh connection
                 session = get_neo4j_connection()
                 result = session.run("RETURN 1 AS ping")
                 record = result.single()
-                ping_result = record["ping"] if record else None
-                if ping_result == 1:
+                
+                if record and record["ping"] == 1:
                     print(f"Neo4j background keep-alive ping successful at {time.ctime()}")
-                close_neo4j_connection(session)
+                else:
+                    print(f"Neo4j background keep-alive ping unexpected result at {time.ctime()}")
             except Exception as e:
                 print(f"Neo4j background keep-alive ping failed at {time.ctime()}: {e}")
+            finally:
+                # Always close the session to return connection to the pool
+                if session:
+                    close_neo4j_connection(session)
+                    session = None
+                # Wait 1 minute before next ping to keep connection alive
+                time.sleep(60)
     
-    # Start the background thread
     threading.Thread(target=keep_alive_loop, daemon=True).start()
-    print("Neo4j keep-alive background process started (pings every 3 minutes)")
+    print("Neo4j keep-alive background process started (pings immediately, then every 1 minute)")
